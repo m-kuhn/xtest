@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [published, created]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      flavors: ${{ steps.set-matrix.outputs.flavors }}
+    steps:
+      - name: Set matrix based on trigger
+        id: set-matrix
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "flavors=[\"A\", \"B\", \"C\"]" >> $GITHUB_OUTPUT
+          else
+            echo "flavors=[\"A\"]" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: ${{ fromJson(needs.setup.outputs.flavors) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Build flavor ${{ matrix.flavor }}
+        run: python build.py ${{ matrix.flavor }}
+      
+      - name: Create artifact directory
+        run: |
+          mkdir -p artifacts
+          cp build.py artifacts/
+          echo "Flavor: ${{ matrix.flavor }}" > artifacts/flavor.txt
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-flavor-${{ matrix.flavor }}
+          path: artifacts/
