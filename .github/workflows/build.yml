@@ -54,7 +54,7 @@ jobs:
           echo "Flavor: ${{ matrix.flavor }}" > artifacts/flavor.txt
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-flavor-${{ matrix.flavor }}
           path: artifacts/
