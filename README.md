@@ -17,22 +17,15 @@ The `build.py` script is a simple Python script that prints the flavor being bui
 python build.py <flavor>
 ```
 
-## GitHub Actions Workflows
+## GitHub Actions Workflow
 
-### Build Workflow (Default)
-- **Trigger**: Push or Pull Request to `main` branch
-- **Builds**: Only Flavor A
-- **File**: `.github/workflows/build.yml`
+A single workflow file (`.github/workflows/build.yml`) handles all build scenarios:
 
-### Release Workflow
-- **Trigger**: Release published or tag pushed (v*)
-- **Builds**: All flavors (A, B, C)
-- **File**: `.github/workflows/release.yml`
+- **Default Build** (Push/PR to `main`): Builds only Flavor A
+- **Release Build** (Release published or tag `v*`): Builds all flavors (A, B, C)
+- **Manual Build** (Workflow dispatch): Builds all flavors (A, B, C)
 
-### Manual Build Workflow
-- **Trigger**: Manual workflow dispatch
-- **Builds**: All flavors (A, B, C)
-- **File**: `.github/workflows/manual.yml`
+The workflow dynamically adjusts the build matrix based on the trigger event.
 
 ## Artifacts
 
